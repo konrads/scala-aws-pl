@@ -1,0 +1,7 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+GET      /token                           aws_pl.controller.TokenCtrl.get
+GET      /user                            aws_pl.controller.UserCtrl.getDevices(type ?= "all")
+GET      /device                          aws_pl.controller.DeviceCtrl.get(device_id)
