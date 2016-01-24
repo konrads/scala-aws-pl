@@ -1,4 +1,4 @@
-package aws_pl.ds.aws
+package aws_pl.aws
 
 import java.io.InputStream
 

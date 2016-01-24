@@ -1,4 +1,4 @@
-package aws_pl.ds.aws
+package aws_pl.aws
 
 import aws_pl.model.{Device, Reading, User}
 import com.amazonaws.regions.Region
@@ -71,7 +71,7 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, d
         model = item(Attrs.model.toString))
     }
 
-    def getByDeviceId(devId: String): Future[Option[Device]] =
+    def getByDevId(devId: String): Future[Option[Device]] =
       mapper.loadByKey[Device](devId)
 
     def getByUid(uid: String): Future[Seq[Device]] = {
@@ -82,7 +82,7 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, d
   }
 
   object reading {
-    object Attrs extends Enumeration { val devId, timestamp, `type`, reading  = Value }
+    object Attrs extends Enumeration { val readingId, devId, timestamp, `type`, reading  = Value }
 
     implicit object serializer extends DynamoDBSerializer[Reading] {
       override def tableName = readingTable
@@ -90,23 +90,30 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, d
       override def primaryKeyOf(reading: Reading) = Map(Attrs.devId.toString -> reading.devId, Attrs.timestamp.toString -> reading.timestamp)
 
       override def toAttributeMap(reading: Reading) = Map(
+        Attrs.readingId.toString -> reading.readingId,
         Attrs.devId.toString -> reading.devId,
         Attrs.timestamp.toString -> reading.timestamp,
         Attrs.`type`.toString -> reading.`type`,
         Attrs.reading.toString -> reading.reading)
 
       override def fromAttributeMap(item: mutable.Map[String, AttributeValue]) = Reading(
+        readingId = item(Attrs.readingId.toString),
         devId = item(Attrs.devId.toString),
         timestamp = item(Attrs.timestamp.toString).getN.toInt,
         `type` = item(Attrs.`type`.toString),
         reading = item(Attrs.reading.toString).getN.toDouble)
     }
 
-    def getSinceTs(devId: String, timestamp: Int): Future[Seq[Reading]] = {
+    def getByReadingId(readingId: String): Future[Option[Reading]] =
+      mapper.loadByKey[Reading](readingId)
+
+    def getForPeriod(devId: String, limit: Int, startTs: Int, endTs: Int): Future[Seq[Reading]] = {
       val req = new QueryRequest()
         .withKeyConditions(Map(
           Attrs.devId.toString -> QueryCondition.equalTo(devId),
-          Attrs.timestamp.toString -> QueryCondition.greaterThanOrEqual(timestamp)))
+          Attrs.timestamp.toString -> QueryCondition.between(startTs, endTs)))
+        .withScanIndexForward(false)
+        .withLimit(limit)
       mapper.queryOnce[Reading](req)
     }
   }

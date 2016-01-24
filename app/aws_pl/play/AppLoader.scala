@@ -4,7 +4,7 @@ import _root_.redis.RedisClient
 import _root_.router.Routes
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
-import aws_pl.ds.aws._
+import aws_pl.aws._
 import aws_pl.ds.repo._
 import aws_pl.controller._
 import play.api.ApplicationLoader.Context
