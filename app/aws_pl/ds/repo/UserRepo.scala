@@ -14,4 +14,9 @@ class UserRepo(dynamoDB: DynamoDB, redis: RedisClient)(implicit ec: ExecutionCon
     val cached = redis.get[User](s3Key)
     OptionT(cached).orElseF(dynamoDB.user.getByUid(uid)).value
   }
+
+  def getCachedUserId(token: String) =
+    redis.get[String](s"$authTokenPrefix$token")
+
+  private val authTokenPrefix = "authtoken:"
 }
