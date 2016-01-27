@@ -27,7 +27,7 @@ class Components(context: Context)
   val awsRegion        = Region.getRegion(Regions.fromName(configuration.getString("aws.region").get))
   val s3Endpoint       = configuration.getString("aws.s3.endpoint")
   val dynamodbEndpoint = configuration.getString("aws.dynamodb.endpoint")
-  val s3Bucket         = configuration.getString("aws.s3.bucket")
+  val s3Bucket         = configuration.getString("aws.s3.bucket").get
   val redisHost        = configuration.getString("aws.redis.host").get
   val s3DevicePath     = configuration.getString("aws.s3.path.device").get
   val userTable        = configuration.getString("aws.dynamodb.table.user").get
@@ -45,7 +45,7 @@ class Components(context: Context)
   // repos
   lazy val userRepo    = new UserRepo(dynamoDB, redis)
   lazy val deviceRepo  = new DeviceRepo(dynamoDB, redis)
-  lazy val readingRepo = new ReadingRepo(s3, redis)
+  lazy val readingRepo = new ReadingRepo(s3, redis, s3Bucket)
 
   // controller buiders
   lazy val tokenVal    = new TokenValidated(userRepo)
