@@ -27,7 +27,7 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, d
   private val mapper = AmazonDynamoDBScalaMapper(client)
 
   object user {
-    object Attrs extends Enumeration { val uid, role = Value }
+    object Attrs extends Enumeration { val uid, role, password = Value }
 
     implicit object serializer extends DynamoDBSerializer[User] {
       override def tableName = userTable
@@ -40,7 +40,8 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, d
 
       override def fromAttributeMap(item: mutable.Map[String, AttributeValue]) = User(
         uid = item(Attrs.uid.toString),
-        role = item(Attrs.role.toString))
+        role = item(Attrs.role.toString),
+        password = item(Attrs.password.toString))
     }
 
     def getByUid(uid: String): Future[Option[User]] =

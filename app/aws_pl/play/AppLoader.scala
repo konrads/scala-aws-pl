@@ -54,9 +54,7 @@ class Components(context: Context)
 
   // controllers
   lazy val authTokenCtrl = new AuthTokenCtrl(userRepo)
-  lazy val userCtrl      = new UserCtrl(tokenVal, userRepo)
-  lazy val deviceCtrl    = new DeviceCtrl(tokenVal, deviceRepo)
-  lazy val readingCtrl   = new ReadingCtrl(tokenVal, readingRepo, deviceRepo)
+  lazy val appCtrl       = new AppCtrl(userRepo, deviceRepo, readingRepo, tokenVal)
 
-  override lazy val router = new Routes(httpErrorHandler, authTokenCtrl, userCtrl, deviceCtrl)
+  override lazy val router = new Routes(httpErrorHandler, authTokenCtrl, appCtrl)
 }

@@ -9,6 +9,9 @@ import redis.RedisClient
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeviceRepo(dynamoDB: DynamoDB, redis: RedisClient)(implicit ec: ExecutionContext) {
+  def getDevices(uid: String): Future[Seq[Device]] =
+    dynamoDB.device.getByUid(uid)
+
   def getDevice(devId: String): Future[Option[Device]] = {
     val s3Key = s"device:$devId"
     val cached = redis.get[Device](s3Key)

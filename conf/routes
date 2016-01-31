@@ -2,6 +2,9 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET      /token                           aws_pl.controller.TokenCtrl.get
-GET      /user                            aws_pl.controller.UserCtrl.getDevices(type ?= "all")
-GET      /device                          aws_pl.controller.DeviceCtrl.get(device_id)
+GET      /token                           aws_pl.controller.AuthTokenCtrl.get
+GET      /user                            aws_pl.controller.AppCtrl.getUser
+GET      /device                          aws_pl.controller.AppCtrl.getDevice(deviceId: Option[String])
+GET      /devices                         aws_pl.controller.AppCtrl.getDevices
+GET      /reading                         aws_pl.controller.AppCtrl.getReading(readingId: Option[String])
+GET      /readings                        aws_pl.controller.AppCtrl.getReadings
