@@ -12,7 +12,8 @@ import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
 
 
-class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, deviceTable: String, readingTable: String)(implicit ec: ExecutionContext) {
+class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, deviceTable: String, readingTable: String)
+              (implicit ec: ExecutionContext) {
   private val asyncClient: AmazonDynamoDBAsyncClient = {
     val c = new AmazonDynamoDBAsyncClient()
     Logger.info("Running dynamoDB with region: " + awsRegion)
@@ -52,7 +53,7 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, d
   }
 
   object device {
-    object Attrs extends Enumeration { val devId, uid, `type`, model  = Value }
+    object Attrs extends Enumeration { val devId, uid, `type`  = Value }
 
     implicit object serializer extends DynamoDBSerializer[Device] {
       override def tableName = deviceTable
@@ -62,14 +63,12 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, d
       override def toAttributeMap(device: Device) = Map(
         Attrs.devId.toString -> device.devId,
         Attrs.uid.toString -> device.uid,
-        Attrs.`type`.toString -> device.`type`,
-        Attrs.model.toString -> device.model)
+        Attrs.`type`.toString -> device.`type`)
 
       override def fromAttributeMap(item: mutable.Map[String, AttributeValue]) = Device(
         devId = item(Attrs.devId.toString),
         uid = item(Attrs.uid.toString),
-        `type` = item(Attrs.`type`.toString),
-        model = item(Attrs.model.toString))
+        `type` = item(Attrs.`type`.toString))
     }
 
     def getByDevId(devId: String): Future[Option[Device]] =
@@ -83,7 +82,7 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, d
   }
 
   object reading {
-    object Attrs extends Enumeration { val readingId, devId, timestamp, `type`, reading  = Value }
+    object Attrs extends Enumeration { val devId, timestamp, `type`, reading  = Value }
 
     implicit object serializer extends DynamoDBSerializer[Reading] {
       override def tableName = readingTable
@@ -91,14 +90,12 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, d
       override def primaryKeyOf(reading: Reading) = Map(Attrs.devId.toString -> reading.devId, Attrs.timestamp.toString -> reading.timestamp)
 
       override def toAttributeMap(reading: Reading) = Map(
-        Attrs.readingId.toString -> reading.readingId,
         Attrs.devId.toString -> reading.devId,
         Attrs.timestamp.toString -> reading.timestamp,
         Attrs.`type`.toString -> reading.`type`,
         Attrs.reading.toString -> reading.reading)
 
       override def fromAttributeMap(item: mutable.Map[String, AttributeValue]) = Reading(
-        readingId = item(Attrs.readingId.toString),
         devId = item(Attrs.devId.toString),
         timestamp = item(Attrs.timestamp.toString).getN.toInt,
         `type` = item(Attrs.`type`.toString),

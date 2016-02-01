@@ -1,8 +1,7 @@
 package aws_pl.controller
 
 import java.util.Base64
-
-import aws_pl.ds.repo.UserRepo
+import aws_pl.repo.UserRepo
 import cats.data._
 import cats.std.all._
 import play.api.libs.json.Json

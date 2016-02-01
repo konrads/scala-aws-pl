@@ -1,4 +1,4 @@
-package aws_pl.ds.repo
+package aws_pl.repo
 
 import aws_pl.aws.S3
 import aws_pl.model.Reading
@@ -30,7 +30,7 @@ class ReadingRepo(s3: S3, redis: RedisClient, bucket: String)(implicit ec: Execu
   }
 
   private def getFromS3(devId: String): Future[Seq[Reading]] = {
-    val s3Key = s"readings/last10/$devId"
+    val s3Key = s"readings/last10/$devId.json"
     for {
       readingIds <- s3.list(bucket, s3Key)
       readingOs  <- {

@@ -1,10 +1,10 @@
 package aws_pl.play
 
+import aws_pl.repo.{ReadingRepo, DeviceRepo, UserRepo}
 import aws_pl.util.TokenValidated
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import aws_pl.aws._
-import aws_pl.ds.repo._
 import aws_pl.controller._
 import play.api.ApplicationLoader.Context
 import play.api._

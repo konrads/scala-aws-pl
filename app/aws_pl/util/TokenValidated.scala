@@ -1,7 +1,7 @@
 package aws_pl.util
 
-import aws_pl.ds.repo.UserRepo
 import aws_pl.model.User
+import aws_pl.repo.UserRepo
 import cats.data.OptionT
 import cats.std.future._
 import play.api.libs.concurrent.Execution.Implicits._

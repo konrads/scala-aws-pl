@@ -1,0 +1,35 @@
+{
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "devId",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "timestamp",
+      "AttributeType": "N"
+    },
+    {
+      "AttributeName": "type",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "reading",
+      "AttributeType": "N"
+    }
+  ],
+  "KeySchema": [
+    {
+      "KeyType": "HASH",
+      "AttributeName": "devId"
+    },
+    {
+      "KeyType": "RANGE",
+      "AttributeName": "timestamp"
+    }
+
+  ],
+  "ProvisionedThroughput": {
+    "ReadCapacityUnits": 1,
+    "WriteCapacityUnits": 1
+  }
+}

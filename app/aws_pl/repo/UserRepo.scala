@@ -1,4 +1,4 @@
-package aws_pl.ds.repo
+package aws_pl.repo
 
 import java.util.UUID
 

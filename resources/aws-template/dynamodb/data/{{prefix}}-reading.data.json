@@ -1,0 +1,56 @@
+{
+  "RequestItems": {
+    "{{prefix}}-reading": [
+      {
+        "PutRequest": {
+          "Item": {
+            "devId":     { "S": "xyz123" },
+            "timestamp": { "N": "{{ts}}" },
+            "type":      { "S": "heartbeat" },
+            "reading":   { "N": "1.1" }
+          }
+        }
+      },
+      {
+        "PutRequest": {
+          "Item": {
+            "devId":     { "S": "xyz123" },
+            "timestamp": { "N": "{{ts-10}}" },
+            "type":      { "S": "heartbeat" },
+            "reading":   { "N": "1.5" }
+          }
+        }
+      },
+      {
+        "PutRequest": {
+          "Item": {
+            "devId":     { "S": "xyz123" },
+            "timestamp": { "N": "{{ts-20}}" },
+            "type":      { "S": "heartbeat" },
+            "reading":   { "N": "1.7" }
+          }
+        }
+      },
+      {
+        "PutRequest": {
+          "Item": {
+            "devId":    { "S": "abc456" },
+            "timestamp": { "N": "{{ts}}" },
+            "type":      { "S": "picture" },
+            "reading":   { "N": "2334.56" }
+          }
+        }
+      },
+      {
+        "PutRequest": {
+          "Item": {
+            "devId":    { "S": "abc456" },
+            "timestamp": { "N": "{{ts-6000}}" },
+            "type":      { "S": "picture" },
+            "reading":   { "N": "4531.09" }
+          }
+        }
+      }
+    ]
+  }
+}

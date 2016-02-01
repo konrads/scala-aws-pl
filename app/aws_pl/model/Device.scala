@@ -4,7 +4,7 @@ import akka.util.ByteString
 import play.api.libs.json.Json
 import redis.ByteStringFormatter
 
-case class Device(devId: String, uid: String, `type`: String, model: String)
+case class Device(devId: String, uid: String, `type`: String)
 
 object Device {
   implicit val jsonWrites = Json.writes[Device]

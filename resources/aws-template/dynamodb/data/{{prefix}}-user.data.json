@@ -1,0 +1,24 @@
+{
+  "RequestItems": {
+    "{{prefix}}-user": [
+      {
+        "PutRequest": {
+          "Item": {
+            "uid":      { "S": "123" },
+            "role":     { "S": "user" },
+            "password": { "S": "pwd123" }
+          }
+        }
+      },
+      {
+        "PutRequest": {
+          "Item": {
+            "uid":      { "S": "456" },
+            "role":     { "S": "user" },
+            "password": { "S": "pwd456" }
+          }
+        }
+      }
+    ]
+  }
+}

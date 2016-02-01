@@ -1,0 +1,33 @@
+{
+  "RequestItems": {
+    "{{prefix}}-device": [
+      {
+        "PutRequest": {
+          "Item": {
+            "devId":    { "S": "xyz123" },
+            "uid":      { "S": "123" },
+            "type":     { "S": "router" }
+          }
+        }
+      },
+      {
+        "PutRequest": {
+          "Item": {
+            "devId":    { "S": "abc456" },
+            "uid":      { "S": "123" },
+            "type":     { "S": "camera" }
+          }
+        }
+      },
+      {
+        "PutRequest": {
+          "Item": {
+            "devId":    { "S": "qwe789" },
+            "uid":      { "S": "456" },
+            "type":     { "S": "heat-sensor" }
+          }
+        }
+      }
+    ]
+  }
+}

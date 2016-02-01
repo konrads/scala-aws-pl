@@ -1,7 +1,7 @@
 package aws_pl.controller
 
-import aws_pl.ds.repo.{DeviceRepo, ReadingRepo, UserRepo}
 import aws_pl.model.Device
+import aws_pl.repo.{ReadingRepo, DeviceRepo, UserRepo}
 import aws_pl.util.{Cats, TokenValidated}
 import cats.data.{Xor, XorT}
 import cats.std.all._
@@ -18,19 +18,7 @@ class AppCtrl(userRepo: UserRepo, deviceRepo: DeviceRepo, readingRepo: ReadingRe
   }
 
   def getDevice(deviceIdO: Option[String]) = tokenVal.async { req =>
-    val res = deviceIdO.map { devId =>
-      for {
-        device <- Cats.xort[Err, Device](deviceRepo.getDevice(devId), NoData)
-        // ensure deviceId belongs to current user
-        ownedDevice <- {
-          val asXor = if (device.uid == req.user.uid)
-            Xor.right[Err, Device](device)
-          else
-            Xor.left[Err, Device](NoDependency)
-          XorT.fromXor[Future](asXor)
-        }
-      } yield ownedDevice
-    }.getOrElse {
+    val res = deviceIdO.map(deviceId => getOwnedDevice(deviceId, req.user.uid)).getOrElse {
       val devFO = for {
         devices <- deviceRepo.getDevices(req.user.uid)
         device <- Future.successful(Try(devices.head).toOption)
@@ -49,13 +37,29 @@ class AppCtrl(userRepo: UserRepo, deviceRepo: DeviceRepo, readingRepo: ReadingRe
     }
   }
 
-  // match
-  def getReading(readingId: Option[String]) = tokenVal.async { req =>
-    // ensure deviceId belongs to current user
-    ???
+  def getReadings = tokenVal.async { req =>
+    val res = for {
+      devices <- deviceRepo.getDevices(req.user.uid)
+      readings <- {
+        val readingFs = devices.map(dev => readingRepo.getReadings(dev.devId))
+        val readingsFs2 = Future.sequence(readingFs)
+        readingsFs2.map(_.flatten)
+      }
+    } yield readings
+    res.map(readings => Ok(Json.arr(readings)))
   }
 
-  def getReadings = tokenVal.async { req =>
-    ???
-  }
+  private def getOwnedDevice(deviceId: String, uid: String): XorT[Future, Err, Device] =
+    for {
+      device <- Cats.xort[Err, Device](deviceRepo.getDevice(deviceId), NoData)
+      // ensure deviceId is assigned to uid
+      ownedDevice <- {
+        val asXor = if (device.uid == uid)
+          Xor.right[Err, Device](device)
+        else
+          Xor.left[Err, Device](NoDependency)
+        XorT.fromXor[Future](asXor)
+      }
+    } yield ownedDevice
+
 }

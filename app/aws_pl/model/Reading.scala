@@ -4,7 +4,7 @@ import akka.util.ByteString
 import play.api.libs.json.Json
 import redis.ByteStringFormatter
 
-case class Reading(readingId: String, devId: String, timestamp: Int, `type`: String, reading: Double)
+case class Reading(devId: String, timestamp: Int, `type`: String, reading: Double)
 
 object Reading {
   implicit val jsonWrites = Json.writes[Reading]
