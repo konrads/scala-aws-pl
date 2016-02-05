@@ -4,7 +4,7 @@ import akka.util.ByteString
 import play.api.libs.json.Json
 import redis.ByteStringFormatter
 
-case class User (uid: String, role: String, password: String)
+case class User (uid: String, `type`: String, password: String)
 
 object User {
   implicit val jsonWrites = Json.writes[User]

@@ -12,16 +12,16 @@ trait ResultMapper extends Controller {
 
   def mapResult[C](resOrError: Err Xor C)(implicit w: Writes[C]): Result =
     resOrError.fold({
-      case BadParams => BadRequest.as(JSON)
-      case NoData => NotFound.as(JSON)
+      case BadReq       => BadRequest.as(JSON)
+      case NoData       => NotFound.as(JSON)
       case NoDependency => FailedDependency.as(JSON)
-      case _ => InternalServerError.as(JSON)
+      case _            => InternalServerError.as(JSON)
     },
       success => Ok(Json.toJson(success))
     )
 }
 
 sealed trait Err
-case object BadParams extends Err
+case object BadReq extends Err
 case object NoData extends Err
 case object NoDependency extends Err

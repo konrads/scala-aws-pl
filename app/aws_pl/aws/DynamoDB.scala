@@ -1,6 +1,6 @@
 package aws_pl.aws
 
-import aws_pl.model.{Device, Reading, User}
+import aws_pl.model.{Spot, User}
 import com.amazonaws.regions.Region
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClient
 import com.amazonaws.services.dynamodbv2.model.{AttributeValue, QueryRequest}
@@ -12,7 +12,7 @@ import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
 
 
-class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, deviceTable: String, readingTable: String)
+class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, spotTable: String)
               (implicit ec: ExecutionContext) {
   private val asyncClient: AmazonDynamoDBAsyncClient = {
     val c = new AmazonDynamoDBAsyncClient()
@@ -28,7 +28,7 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, d
   private val mapper = AmazonDynamoDBScalaMapper(client)
 
   object user {
-    object Attrs extends Enumeration { val uid, role, password = Value }
+    object Attrs extends Enumeration { val uid, `type`, password = Value }
 
     implicit object serializer extends DynamoDBSerializer[User] {
       override def tableName = userTable
@@ -37,11 +37,11 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, d
 
       override def toAttributeMap(user: User) = Map(
         Attrs.uid.toString -> user.uid,
-        Attrs.role.toString -> user.role)
+        Attrs.`type`.toString -> user.`type`)
 
       override def fromAttributeMap(item: mutable.Map[String, AttributeValue]) = User(
         uid = item(Attrs.uid.toString),
-        role = item(Attrs.role.toString),
+        `type` = item(Attrs.`type`.toString),
         password = item(Attrs.password.toString))
     }
 
@@ -52,67 +52,38 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, d
       mapper.scan[User]()
   }
 
-  object device {
-    object Attrs extends Enumeration { val devId, uid, `type`  = Value }
+  object spot {
+    object Attrs extends Enumeration { val ticker, timestamp, currency, price  = Value }
 
-    implicit object serializer extends DynamoDBSerializer[Device] {
-      override def tableName = deviceTable
-      override def hashAttributeName = Attrs.devId.toString
-      override def primaryKeyOf(device: Device) = Map(Attrs.devId.toString -> device.uid)
+    implicit object serializer extends DynamoDBSerializer[Spot] {
+      override def tableName = spotTable
+      override def hashAttributeName = Attrs.ticker.toString
+      override def primaryKeyOf(spot: Spot) = Map(Attrs.ticker.toString -> spot.ticker, Attrs.timestamp.toString -> spot.timestamp)
 
-      override def toAttributeMap(device: Device) = Map(
-        Attrs.devId.toString -> device.devId,
-        Attrs.uid.toString -> device.uid,
-        Attrs.`type`.toString -> device.`type`)
+      override def toAttributeMap(spot: Spot) = Map(
+        Attrs.ticker.toString -> spot.ticker,
+        Attrs.timestamp.toString -> spot.timestamp,
+        Attrs.currency.toString -> spot.currency,
+        Attrs.price.toString -> spot.price)
 
-      override def fromAttributeMap(item: mutable.Map[String, AttributeValue]) = Device(
-        devId = item(Attrs.devId.toString),
-        uid = item(Attrs.uid.toString),
-        `type` = item(Attrs.`type`.toString))
-    }
-
-    def getByDevId(devId: String): Future[Option[Device]] =
-      mapper.loadByKey[Device](devId)
-
-    def getByUid(uid: String): Future[Seq[Device]] = {
-      val req = new QueryRequest()
-        .withKeyConditions(Map(Attrs.uid.toString -> QueryCondition.equalTo(uid)))
-      mapper.queryOnce[Device](req)
-    }
-  }
-
-  object reading {
-    object Attrs extends Enumeration { val devId, timestamp, `type`, reading  = Value }
-
-    implicit object serializer extends DynamoDBSerializer[Reading] {
-      override def tableName = readingTable
-      override def hashAttributeName = Attrs.devId.toString
-      override def primaryKeyOf(reading: Reading) = Map(Attrs.devId.toString -> reading.devId, Attrs.timestamp.toString -> reading.timestamp)
-
-      override def toAttributeMap(reading: Reading) = Map(
-        Attrs.devId.toString -> reading.devId,
-        Attrs.timestamp.toString -> reading.timestamp,
-        Attrs.`type`.toString -> reading.`type`,
-        Attrs.reading.toString -> reading.reading)
-
-      override def fromAttributeMap(item: mutable.Map[String, AttributeValue]) = Reading(
-        devId = item(Attrs.devId.toString),
+      override def fromAttributeMap(item: mutable.Map[String, AttributeValue]) = Spot(
+        ticker = item(Attrs.ticker.toString),
         timestamp = item(Attrs.timestamp.toString).getN.toInt,
-        `type` = item(Attrs.`type`.toString),
-        reading = item(Attrs.reading.toString).getN.toDouble)
+        currency = item(Attrs.currency.toString),
+        price = item(Attrs.price.toString).getN.toDouble)
     }
 
-    def getByReadingId(readingId: String): Future[Option[Reading]] =
-      mapper.loadByKey[Reading](readingId)
+    def getByTicker(ticker: String): Future[Option[Spot]] =
+      mapper.loadByKey[Spot](ticker)
 
-    def getForPeriod(devId: String, limit: Int, startTs: Int, endTs: Int): Future[Seq[Reading]] = {
+    def getForPeriod(ticker: String, limit: Int, startTs: Long, endTs: Long): Future[Seq[Spot]] = {
       val req = new QueryRequest()
         .withKeyConditions(Map(
-          Attrs.devId.toString -> QueryCondition.equalTo(devId),
+          Attrs.ticker.toString -> QueryCondition.equalTo(ticker),
           Attrs.timestamp.toString -> QueryCondition.between(startTs, endTs)))
         .withScanIndexForward(false)
         .withLimit(limit)
-      mapper.queryOnce[Reading](req)
+      mapper.queryOnce[Spot](req)
     }
   }
 }

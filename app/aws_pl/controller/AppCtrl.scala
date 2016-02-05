@@ -1,65 +1,51 @@
 package aws_pl.controller
 
-import aws_pl.model.Device
-import aws_pl.repo.{ReadingRepo, DeviceRepo, UserRepo}
-import aws_pl.util.{Cats, TokenValidated}
-import cats.data.{Xor, XorT}
-import cats.std.all._
-import play.api.libs.json.Json
+import aws_pl.repo.{FxRepo, PortfolioRepo, SpotRepo, UserRepo}
+import aws_pl.util.AuthenticatedAction
+import aws_pl.util.Cats._
+import play.api.libs.json.{Json, JsArray}
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
+import scala.concurrent.ExecutionContext
 
-class AppCtrl(userRepo: UserRepo, deviceRepo: DeviceRepo, readingRepo: ReadingRepo, tokenVal: TokenValidated)
+class AppCtrl(userRepo: UserRepo, portfolioRepo: PortfolioRepo, spotRepo: SpotRepo, fxRepo: FxRepo, auth: AuthenticatedAction)
              (implicit ec: ExecutionContext) extends ResultMapper {
 
-  def getUser = tokenVal.async { req =>
+  def getUser = auth.async { req =>
     userRepo.getUser(req.user.uid).map(mapResult(_))
   }
 
-  def getDevice(deviceIdO: Option[String]) = tokenVal.async { req =>
-    val res = deviceIdO.map(deviceId => getOwnedDevice(deviceId, req.user.uid)).getOrElse {
-      val devFO = for {
-        devices <- deviceRepo.getDevices(req.user.uid)
-        device <- Future.successful(Try(devices.head).toOption)
+  def getUserSpots(currency: String) = auth.async { req =>
+    val res = for {
+      tickers <- f2Xort(portfolioRepo.getPortfolio(req.user.uid))
+      spots   <- fs2Xort(spotRepo.getLatestSpots(tickers), NoData)
+      fxMap   <- fm2Xort(fxRepo.getFxMap(currency), NoDependency)
+    } yield {
+      val fxedSpots = for {
+        spot <- spots
       } yield {
-        device
+        spot.copy(
+          currency = currency,
+          price = spot.price * fxMap(spot.currency)
+        )
       }
-      Cats.xort[Err, Device](devFO, NoData)
+      JsArray(for { spot <- fxedSpots } yield { Json.toJson(spot) } )
     }
     res.value.map(mapResult(_))
   }
 
-  def getDevices = tokenVal.async { req =>
-    deviceRepo.getDevices(req.user.uid).map { devs =>
-      val devs2 = devs.map(Json.toJson(_))
-      Ok(Json.arr(devs2))
-    }
-  }
-
-  def getReadings = tokenVal.async { req =>
+  def getSpots(tickers: Seq[String]) = auth.async { req =>
     val res = for {
-      devices <- deviceRepo.getDevices(req.user.uid)
-      readings <- {
-        val readingFs = devices.map(dev => readingRepo.getReadings(dev.devId))
-        val readingsFs2 = Future.sequence(readingFs)
-        readingsFs2.map(_.flatten)
-      }
-    } yield readings
-    res.map(readings => Ok(Json.arr(readings)))
+      tickers <- f2Xort(portfolioRepo.getPortfolio(req.user.uid))
+      spots <- fs2Xort(spotRepo.getLatestSpots(tickers), NoData)
+    } yield {
+      JsArray(for {spot <- spots} yield {
+        Json.toJson(spot)
+      })
+    }
+    res.value.map(mapResult(_))
   }
 
-  private def getOwnedDevice(deviceId: String, uid: String): XorT[Future, Err, Device] =
-    for {
-      device <- Cats.xort[Err, Device](deviceRepo.getDevice(deviceId), NoData)
-      // ensure deviceId is assigned to uid
-      ownedDevice <- {
-        val asXor = if (device.uid == uid)
-          Xor.right[Err, Device](device)
-        else
-          Xor.left[Err, Device](NoDependency)
-        XorT.fromXor[Future](asXor)
-      }
-    } yield ownedDevice
-
+  def getFx(currency: String) = auth.async { req =>
+    fm2Xort(fxRepo.getFxMap(currency), NoData).value.map(mapResult(_))
+  }
 }

@@ -1,7 +1,7 @@
 package aws_pl.play
 
-import aws_pl.repo.{ReadingRepo, DeviceRepo, UserRepo}
-import aws_pl.util.TokenValidated
+import aws_pl.repo.{SpotRepo, PortfolioRepo, UserRepo}
+import aws_pl.util.AuthenticatedAction
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import aws_pl.aws._
@@ -27,11 +27,9 @@ class Components(context: Context)
   val awsRegion          = Region.getRegion(Regions.fromName(configuration.getString("aws.region").get))
   val s3Bucket           = configuration.getString("aws.s3.bucket").get
   val redisHost          = configuration.getString("aws.redis.host").get
-  val s3DevicePath       = configuration.getString("aws.s3.path.device").get
   val userTable          = configuration.getString("aws.dynamodb.table.user").get
-  val deviceTable        = configuration.getString("aws.dynamodb.table.device").get
-  val readingTable       = configuration.getString("aws.dynamodb.table.reading").get
-  val deviceNames        = configuration.getObject("reference_data.device_names").map(_.asScala.map { case (k,v) => (k,v.unwrapped().asInstanceOf[String]) }).get
+  val spotTable          = configuration.getString("aws.dynamodb.table.spot").get
+  val stockNames         = configuration.getObject("reference_data.stock_names").map(_.asScala.map { case (k,v) => (k,v.unwrapped().asInstanceOf[String]) }).get
 
   // optional config
   val s3Endpoint         = configuration.getString("aws.s3.endpoint")
@@ -40,17 +38,17 @@ class Components(context: Context)
   import actorSystem.dispatcher
 
   // data stores
-  lazy val dynamoDB      = new DynamoDB(awsRegion, dynamodbEndpoint, userTable, deviceTable, readingTable)
+  lazy val dynamoDB      = new DynamoDB(awsRegion, dynamodbEndpoint, userTable, spotTable)
   lazy val s3            = new S3(awsRegion, s3Endpoint)
   lazy val redis         = RedisClient(host=redisHost)(actorSystem)
 
   // repos
   lazy val userRepo      = new UserRepo(dynamoDB, redis)
-  lazy val deviceRepo    = new DeviceRepo(dynamoDB, redis)
-  lazy val readingRepo   = new ReadingRepo(s3, redis, s3Bucket)
+  lazy val deviceRepo    = new PortfolioRepo(s3, s3Bucket, redis)
+  lazy val readingRepo   = new SpotRepo(dynamoDB, redis)
 
   // controller builders
-  lazy val tokenVal      = new TokenValidated(userRepo)
+  lazy val tokenVal      = new AuthenticatedAction(userRepo)
 
   // controllers
   lazy val authTokenCtrl = new AuthTokenCtrl(userRepo)
