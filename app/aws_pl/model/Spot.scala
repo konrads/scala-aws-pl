@@ -4,7 +4,7 @@ import akka.util.ByteString
 import play.api.libs.json.Json
 import redis.ByteStringFormatter
 
-case class Spot(ticker: String, timestamp: Int, currency: String, price: Double)
+case class Spot(ticker: String, timestamp: Long, currency: String, price: Double)
 
 object Spot {
   implicit val jsonWrites = Json.writes[Spot]

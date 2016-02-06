@@ -1,26 +1,18 @@
 {
   "AttributeDefinitions": [
     {
-      "AttributeName": "devId",
+      "AttributeName": "ticker",
       "AttributeType": "S"
     },
     {
       "AttributeName": "timestamp",
-      "AttributeType": "N"
-    },
-    {
-      "AttributeName": "type",
-      "AttributeType": "S"
-    },
-    {
-      "AttributeName": "reading",
       "AttributeType": "N"
     }
   ],
   "KeySchema": [
     {
       "KeyType": "HASH",
-      "AttributeName": "devId"
+      "AttributeName": "ticker"
     },
     {
       "KeyType": "RANGE",

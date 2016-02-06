@@ -4,8 +4,8 @@
       {
         "PutRequest": {
           "Item": {
-            "uid":      { "S": "123" },
-            "role":     { "S": "user" },
+            "uid":      { "S": "user123" },
+            "type":     { "S": "user" },
             "password": { "S": "pwd123" }
           }
         }
@@ -13,8 +13,8 @@
       {
         "PutRequest": {
           "Item": {
-            "uid":      { "S": "456" },
-            "role":     { "S": "user" },
+            "uid":      { "S": "user456" },
+            "type":     { "S": "admin" },
             "password": { "S": "pwd456" }
           }
         }

@@ -3,14 +3,6 @@
     {
       "AttributeName": "uid",
       "AttributeType": "S"
-    },
-    {
-      "AttributeName": "role",
-      "AttributeType": "S"
-    },
-    {
-      "AttributeName": "password",
-      "AttributeType": "S"
     }
   ],
   "KeySchema": [

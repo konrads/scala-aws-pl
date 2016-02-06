@@ -1,0 +1,56 @@
+{
+  "RequestItems": {
+    "{{prefix}}-spot": [
+      {
+        "PutRequest": {
+          "Item": {
+            "ticker":    { "S": "goog" },
+            "timestamp": { "N": "{{ts}}" },
+            "currency":  { "S": "USD" },
+            "price":     { "N": "683.57" }
+          }
+        }
+      },
+      {
+        "PutRequest": {
+          "Item": {
+            "ticker":    { "S": "goog" },
+            "timestamp": { "N": "{{ts-10}}" },
+            "currency":  { "S": "USD" },
+            "price":     { "N": "673.11" }
+          }
+        }
+      },
+      {
+        "PutRequest": {
+          "Item": {
+            "ticker":    { "S": "aapl" },
+            "timestamp": { "N": "{{ts}}" },
+            "currency":  { "S": "USD" },
+            "price":     { "N": "94.02" }
+          }
+        }
+      },
+      {
+        "PutRequest": {
+          "Item": {
+            "ticker":    { "S": "blt" },
+            "timestamp": { "N": "{{ts}}" },
+            "currency":  { "S": "GBP" },
+            "price":     { "N": "710.03" }
+          }
+        }
+      },
+      {
+        "PutRequest": {
+          "Item": {
+            "ticker":    { "S": "rio" },
+            "timestamp": { "N": "{{ts}}" },
+            "currency":  { "S": "AUD" },
+            "price":     { "N": "41.62" }
+          }
+        }
+      }
+    ]
+  }
+}

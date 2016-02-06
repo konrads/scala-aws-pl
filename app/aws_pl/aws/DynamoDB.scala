@@ -37,7 +37,8 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, s
 
       override def toAttributeMap(user: User) = Map(
         Attrs.uid.toString -> user.uid,
-        Attrs.`type`.toString -> user.`type`)
+        Attrs.`type`.toString -> user.`type`,
+        Attrs.password.toString -> user.password)
 
       override def fromAttributeMap(item: mutable.Map[String, AttributeValue]) = User(
         uid = item(Attrs.uid.toString),

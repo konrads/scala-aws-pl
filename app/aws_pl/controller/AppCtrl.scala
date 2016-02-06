@@ -6,6 +6,7 @@ import aws_pl.util.Cats._
 import play.api.libs.json.{Json, JsArray}
 
 import scala.concurrent.ExecutionContext
+import cats.std.all._
 
 class AppCtrl(userRepo: UserRepo, portfolioRepo: PortfolioRepo, spotRepo: SpotRepo, fxRepo: FxRepo, auth: AuthenticatedAction)
              (implicit ec: ExecutionContext) extends ResultMapper {
@@ -14,7 +15,7 @@ class AppCtrl(userRepo: UserRepo, portfolioRepo: PortfolioRepo, spotRepo: SpotRe
     userRepo.getUser(req.user.uid).map(mapResult(_))
   }
 
-  def getUserSpots(currency: String) = auth.async { req =>
+  def getMySpots(currency: String) = auth.async { req =>
     val res = for {
       tickers <- f2Xort(portfolioRepo.getPortfolio(req.user.uid))
       spots   <- fs2Xort(spotRepo.getLatestSpots(tickers), NoData)
@@ -28,7 +29,8 @@ class AppCtrl(userRepo: UserRepo, portfolioRepo: PortfolioRepo, spotRepo: SpotRe
           price = spot.price * fxMap(spot.currency)
         )
       }
-      JsArray(for { spot <- fxedSpots } yield { Json.toJson(spot) } )
+      val asJs = for { spot <- fxedSpots } yield { Json.toJson(spot) }
+      JsArray(asJs)
     }
     res.value.map(mapResult(_))
   }
@@ -36,11 +38,10 @@ class AppCtrl(userRepo: UserRepo, portfolioRepo: PortfolioRepo, spotRepo: SpotRe
   def getSpots(tickers: Seq[String]) = auth.async { req =>
     val res = for {
       tickers <- f2Xort(portfolioRepo.getPortfolio(req.user.uid))
-      spots <- fs2Xort(spotRepo.getLatestSpots(tickers), NoData)
+      spots   <- fs2Xort(spotRepo.getLatestSpots(tickers), NoData)
     } yield {
-      JsArray(for {spot <- spots} yield {
-        Json.toJson(spot)
-      })
+      val asJs = for {spot <- spots} yield { Json.toJson(spot) }
+      JsArray(asJs)
     }
     res.value.map(mapResult(_))
   }

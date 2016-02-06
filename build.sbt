@@ -21,7 +21,7 @@ libraryDependencies ++= Seq(
   "com.amazonaws"          %  "aws-java-sdk" % "1.10.34",
   "com.github.nscala-time" %% "nscala-time"  % "2.6.0",
   "com.github.etaty"       %% "rediscala"    % "1.5.0",
-  "org.spire-math"         %% "cats"         % "0.3.0",
+  "org.typelevel"          %% "cats"         % "0.4.1",
   "com.typesafe"           %  "config"       % "1.3.0"
 )
 
