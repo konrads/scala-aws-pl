@@ -11,12 +11,11 @@ import redis.RedisClient
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserRepo(dynamoDB: DynamoDB, redis: RedisClient, userTypes: Map[String, String])(implicit ec: ExecutionContext) {
+class UserRepo(dynamoDB: DynamoDB, redis: RedisClient)(implicit ec: ExecutionContext) {
   def getUser(uid: String): Future[Option[User]] = {
     val s3Key = s"$userPrefix:$uid"
     val cached = redis.get[User](s3Key)
-    val fixedType = cached.map(o => o.map(u => u.copy(`type` = userTypes(u.`type`))))
-    OptionT(fixedType).orElseF(dynamoDB.user.getByUid(uid)).value
+    OptionT(cached).orElseF(dynamoDB.user.getByUid(uid)).value
   }
 
   def getCachedUserId(token: String) =

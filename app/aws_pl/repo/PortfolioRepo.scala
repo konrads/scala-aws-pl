@@ -9,7 +9,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class PortfolioRepo(s3: S3, bucket: String, redis: RedisClient)(implicit ec: ExecutionContext) {
   def getPortfolio(uid: String): Future[Seq[String]] = {
     val cacheKey = s"portfolio:$uid"
-    val s3Key = s"portfolio/$uid"
+    val s3Key = s"portfolio/$uid.json"
     for {
       cached <- redis.smembers[String](cacheKey)
       cachedOrFromDynamo <- {
@@ -18,7 +18,7 @@ class PortfolioRepo(s3: S3, bucket: String, redis: RedisClient)(implicit ec: Exe
         else
           s3.getJson(bucket, s3Key).map {
             case None => Nil
-            case Some(tickers) => tickers.as[JsArray].value.map(_.toString())
+            case Some(tickers) => tickers.as[JsArray].value.map(_.as[String])
           }
       }
     } yield {

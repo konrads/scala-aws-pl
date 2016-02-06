@@ -30,7 +30,7 @@ class AuthTokenCtrl(userRepo: UserRepo)(implicit ec: ExecutionContext) extends C
       }
 
     result.fold[Result](Results.Unauthorized) {
-      token => Ok(Json.obj("token" -> token))
+      token => Ok(Json.obj("Authentication-Token" -> token))
     }
   }
 

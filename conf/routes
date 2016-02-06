@@ -5,5 +5,6 @@
 GET      /token                           aws_pl.controller.AuthTokenCtrl.get
 GET      /user                            aws_pl.controller.AppCtrl.getUser
 GET      /myspots                         aws_pl.controller.AppCtrl.getMySpots(currency: String)
-GET      /spots                           aws_pl.controller.AppCtrl.getSpots(tickers: Seq[String])
+GET      /spots                           aws_pl.controller.AppCtrl.getSpots(tickers: Option[String])
 GET      /fx                              aws_pl.controller.AppCtrl.getFx(currency: String)
+PUT      /spot                            aws_pl.controller.AppCtrl.putSpot

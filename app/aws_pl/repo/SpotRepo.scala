@@ -29,4 +29,7 @@ class SpotRepo(dynamoDB: DynamoDB, redis: RedisClient)(implicit ec: ExecutionCon
 
   def getSpots(ticker: String, limit: Int, sinceTs: Long): Future[Seq[Spot]] =
     dynamoDB.spot.getForPeriod(ticker, limit, sinceTs, DateTime.now.getMillis)
+
+  def saveSpot(spot: Spot) =
+    dynamoDB.spot.save(spot)
 }

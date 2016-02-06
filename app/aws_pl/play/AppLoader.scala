@@ -61,7 +61,7 @@ class Components(context: Context)
   lazy val redis         = RedisClient(host=redisHost)(actorSystem)
 
   // repos
-  lazy val userRepo      = new UserRepo(dynamoDB, redis, userTypes)
+  lazy val userRepo      = new UserRepo(dynamoDB, redis)
   lazy val portfolioRepo = new PortfolioRepo(s3, s3Bucket, redis)
   lazy val spotRepo      = new SpotRepo(dynamoDB, redis)
   lazy val fxRepo        = new FxRepo(s3, s3Bucket, redis)
@@ -71,7 +71,7 @@ class Components(context: Context)
 
   // controllers
   lazy val authTokenCtrl = new AuthTokenCtrl(userRepo)
-  lazy val appCtrl       = new AppCtrl(userRepo, portfolioRepo, spotRepo, fxRepo, auth)
+  lazy val appCtrl       = new AppCtrl(userRepo, portfolioRepo, spotRepo, fxRepo, auth, userTypes)
 
   override lazy val router = new Routes(httpErrorHandler, authTokenCtrl, appCtrl)
 }

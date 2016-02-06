@@ -74,8 +74,13 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, s
         price = item(Attrs.price.toString).getN.toDouble)
     }
 
-    def getByTicker(ticker: String): Future[Option[Spot]] =
-      mapper.loadByKey[Spot](ticker)
+    def getByTicker(ticker: String): Future[Option[Spot]] = {
+      val req = new QueryRequest()
+        .withKeyConditions(Map(Attrs.ticker.toString -> QueryCondition.equalTo(ticker)))
+        .withScanIndexForward(false)
+        .withLimit(1)
+      mapper.queryOnce[Spot](req).map(_.headOption)
+    }
 
     def getForPeriod(ticker: String, limit: Int, startTs: Long, endTs: Long): Future[Seq[Spot]] = {
       val req = new QueryRequest()
@@ -86,5 +91,8 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, s
         .withLimit(limit)
       mapper.queryOnce[Spot](req)
     }
+
+    def save(spot: Spot): Future[Unit] =
+      mapper.dump(spot)
   }
 }

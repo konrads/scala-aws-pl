@@ -35,6 +35,9 @@ object Cats {
   def fo2Xort[R](f: Future[Option[R]], default: Err): XorT[Future, Err, R] =
     XorT(f.map(Xor.fromOption(_, default)))
 
-  def xor2Xort[R](xor: Err Xor R) =
+  def xor2Xort[R](xor: Err Xor R): XorT[Future, Err, R] =
     XorT.fromXor[Future](xor)
+
+  def right2Xort[R](pure: R): XorT[Future, Err, R] =
+    XorT.pure[Future, Err, R](pure)
 }
