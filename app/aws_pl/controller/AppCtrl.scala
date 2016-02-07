@@ -1,15 +1,16 @@
 package aws_pl.controller
 
-import aws_pl.model.Spot
+import aws_pl.model.{Spot, SpotPublic}
 import aws_pl.repo.{FxRepo, PortfolioRepo, SpotRepo, UserRepo}
 import aws_pl.util.AuthenticatedAction
 import aws_pl.util.Cats._
 import cats.data.OptionT
-import play.api.libs.json.{JsObject, Json, JsArray}
+import cats.std.all._
+import org.joda.time.DateTime
+import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc.BodyParsers
 
-import scala.concurrent.{Future, ExecutionContext}
-import cats.std.all._
+import scala.concurrent.{ExecutionContext, Future}
 
 class AppCtrl(userRepo: UserRepo, portfolioRepo: PortfolioRepo, spotRepo: SpotRepo, fxRepo: FxRepo,
               auth: AuthenticatedAction, userTypes: Map[String, String])
@@ -24,10 +25,20 @@ class AppCtrl(userRepo: UserRepo, portfolioRepo: PortfolioRepo, spotRepo: SpotRe
   }
 
   def getMySpots(targetCurrency: String) = auth.async { req =>
+    def canBeConverted(spots: Seq[Spot], availableCurrencies: Set[String]) = {
+      val needConversion = (for { s <- spots } yield { s.currency }).toSet - targetCurrency
+      needConversion.subsetOf(availableCurrencies)
+    }
+
     val res = for {
       tickers <- f2Xort(portfolioRepo.getPortfolio(req.user.uid))
       spots   <- fs2Xort(spotRepo.getLatestSpots(tickers), NoData)
       fxMap   <- fm2Xort(fxRepo.getFxMap(targetCurrency), NoDependency)
+      _       <- {
+        // ensure targetCurrency is within fxMap
+        if (canBeConverted(spots, fxMap.keySet)) right2Xort(true)
+        else left2Xort(NoDependency)
+      }
     } yield {
       val fxedSpots = for {
         spot <- spots
@@ -68,9 +79,10 @@ class AppCtrl(userRepo: UserRepo, portfolioRepo: PortfolioRepo, spotRepo: SpotRe
 
   def putSpot = auth.async(BodyParsers.parse.json) { req =>
     // FIXME: json schema validation?
-    val spotO = req.body.validate[Spot].asOpt
+    val spotO = req.body.validate[SpotPublic].asOpt
+    val now = DateTime.now.getMillis/1000
     val res = if (spotO.nonEmpty)
-      spotRepo.saveSpot(spotO.get)map(o => Some(JsObject(Seq())))
+      spotRepo.saveSpot(spotO.get.toPrivate(now))map(o => Some(JsObject(Seq())))
     else
       Future.successful(None)
     res.map(mapResult(_))

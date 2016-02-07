@@ -28,7 +28,7 @@ class SpotRepo(dynamoDB: DynamoDB, redis: RedisClient)(implicit ec: ExecutionCon
     } yield cachedOrFromDb
 
   def getSpots(ticker: String, limit: Int, sinceTs: Long): Future[Seq[Spot]] =
-    dynamoDB.spot.getForPeriod(ticker, limit, sinceTs, DateTime.now.getMillis)
+    dynamoDB.spot.getForPeriod(ticker, limit, sinceTs, DateTime.now.getMillis/1000)
 
   def saveSpot(spot: Spot) =
     dynamoDB.spot.save(spot)

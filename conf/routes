@@ -2,7 +2,7 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET      /token                           aws_pl.controller.AuthTokenCtrl.get
+GET      /authtkn                         aws_pl.controller.AuthTokenCtrl.get
 GET      /user                            aws_pl.controller.AppCtrl.getUser
 GET      /myspots                         aws_pl.controller.AppCtrl.getMySpots(currency: String)
 GET      /spots                           aws_pl.controller.AppCtrl.getSpots(tickers: Option[String])

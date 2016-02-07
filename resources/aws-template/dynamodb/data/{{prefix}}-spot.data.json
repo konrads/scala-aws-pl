@@ -7,7 +7,7 @@
             "ticker":    { "S": "goog" },
             "timestamp": { "N": "{{ts}}" },
             "currency":  { "S": "USD" },
-            "price":     { "N": "683.57" }
+            "price":     { "N": "683.55" }
           }
         }
       },
@@ -17,7 +17,7 @@
             "ticker":    { "S": "goog" },
             "timestamp": { "N": "{{ts-10}}" },
             "currency":  { "S": "USD" },
-            "price":     { "N": "673.11" }
+            "price":     { "N": "673.1" }
           }
         }
       },
@@ -27,7 +27,7 @@
             "ticker":    { "S": "aapl" },
             "timestamp": { "N": "{{ts}}" },
             "currency":  { "S": "USD" },
-            "price":     { "N": "94.02" }
+            "price":     { "N": "94.05" }
           }
         }
       },
@@ -37,7 +37,7 @@
             "ticker":    { "S": "blt" },
             "timestamp": { "N": "{{ts}}" },
             "currency":  { "S": "GBP" },
-            "price":     { "N": "710.03" }
+            "price":     { "N": "710.05" }
           }
         }
       },
@@ -47,7 +47,7 @@
             "ticker":    { "S": "rio" },
             "timestamp": { "N": "{{ts}}" },
             "currency":  { "S": "AUD" },
-            "price":     { "N": "41.62" }
+            "price":     { "N": "42.00" }
           }
         }
       }

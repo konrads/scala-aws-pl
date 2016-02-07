@@ -1,8 +1,8 @@
 [
-  {"sourceCurrency": "GBP", "targetCurrency": "USD", "multiplier": 0.69},
+  {"sourceCurrency": "GBP", "targetCurrency": "USD", "multiplier": 0.70},
   {"sourceCurrency": "USD", "targetCurrency": "GBP", "multiplier": 1.45},
-  {"sourceCurrency": "GBP", "targetCurrency": "AUD", "multiplier": 0.49},
+  {"sourceCurrency": "GBP", "targetCurrency": "AUD", "multiplier": 0.45},
   {"sourceCurrency": "AUD", "targetCurrency": "GBP", "multiplier": 2.05},
   {"sourceCurrency": "USD", "targetCurrency": "AUD", "multiplier": 0.70},
-  {"sourceCurrency": "AUD", "targetCurrency": "USD", "multiplier": 1.42}
+  {"sourceCurrency": "AUD", "targetCurrency": "USD", "multiplier": 1.45}
 ]

@@ -18,3 +18,13 @@ object Spot {
       Json.parse(bs.utf8String).as[Spot]
   }
 }
+
+case class SpotPublic(ticker: String, currency: String, price: Double) {
+  def toPrivate(timestamp: Long) =
+    Spot(this.ticker, timestamp, this.currency, this.price)
+}
+
+object SpotPublic {
+  implicit val jsonWrites = Json.writes[SpotPublic]
+  implicit val jsonReads = Json.reads[SpotPublic]
+}

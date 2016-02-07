@@ -40,4 +40,7 @@ object Cats {
 
   def right2Xort[R](pure: R): XorT[Future, Err, R] =
     XorT.pure[Future, Err, R](pure)
+
+  def left2Xort[R](err: Err): XorT[Future, Err, R] =
+    XorT.pure[Future, R, Err](err).swap
 }
