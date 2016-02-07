@@ -16,8 +16,8 @@ Exercises `fake-aws`'s `dynamodb`, `s3` and `redis`.
   * some portfolio data
   * some spot data
 
-Setup `fake-aws`
-----------------
+Setup fake-aws
+--------------
 ```bash
 # ensure fake-aws is installed
 > data-gen dev resources/aws-template resources/aws-stage
@@ -42,7 +42,7 @@ To run
 > curl -i -H "Authentication-Token: $authtkn" -H "Content-Type: application/json" -XPUT -d '{"ticker":"goog","currency":"USD","price":1000.01}' http://localhost:9000/spot
 ```
 
-Testing
+To test
 -------
 ```
 # ensure fake-aws is setup
