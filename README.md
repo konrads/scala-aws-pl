@@ -1,25 +1,20 @@
 AWS playground in Scala
 =======================
 
-Created from `play-scala` activator template:
-```bash
-> activator new scala-aws-pl play-scala
-> cd scala-aws-pl
-```
-
-This project is a sample web service based on [Play](https://github.com/playframework/playframework) and deployed on [fake-aws](https://github.com/konrads/fake-aws).
+A sample web service based on [Play](https://github.com/playframework/playframework) and deployed on [fake-aws](https://github.com/konrads/fake-aws).
+Exercises `fake-aws`'s `dynamodb`, `s3` and `redis`.
 
 (Contrived) data storage requirements
 -------------------------------------
 * dynamoDB:
-  * user
-  * spot
+  * user data
+  * spot data
 * s3:
-  * portfolio - user to spot mappings
+  * portfolio, ie. mappings between user and spot
 * redis:
-  * redis.get(uid) => user
-  * redis.smembers(uid:portfolioId) => Seq(ticker)
-  * redis.get(ticker) => last spot
+  * some user data
+  * some portfolio data
+  * some spot data
 
 Setup `fake-aws`
 ----------------
@@ -33,7 +28,7 @@ Setup `fake-aws`
 To run
 ------
 ```bash
-# ensure fake-aws is setup
+# ensure fake-aws and jq are installed/setup
 > sbt run &
 # GET token:
 > export authtkn=$(curl localhost:9000/authtkn -u user456:pwd456 | jq --raw-output '.["Authentication-Token"]')
