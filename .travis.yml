@@ -13,5 +13,5 @@ language: scala
 scala:
 - 2.11.7
 
-script:
-- sbt -Daws.accessKeyId=bogus_access_key -Daws.secretKey=bogus_access_key ++$TRAVIS_SCALA_VERSION test
+env:
+- AWS_ACCESS_KEY_ID=bogus_access_key AWS_SECRET_KEY=bogus_access_key
