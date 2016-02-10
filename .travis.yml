@@ -12,3 +12,6 @@ before_script:
 language: scala
 scala:
 - 2.11.7
+
+script:
+- sbt -Daws.accessKeyId=bogus_access_key -Daws.secretKey=bogus_access_key ++$TRAVIS_SCALA_VERSION test
