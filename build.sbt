@@ -9,6 +9,7 @@ lazy val root = project.in(file(".")).enablePlugins(PlayScala)
 routesGenerator := InjectedRoutesGenerator
 
 resolvers += Resolver.bintrayRepo("dwhjames", "maven")
+resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 

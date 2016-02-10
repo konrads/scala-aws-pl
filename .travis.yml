@@ -3,7 +3,6 @@ services:
 - docker
 
 before_script:
-- echo using TRAVIS_SCALA_VERSION: $TRAVIS_SCALA_VERSION
 - git clone https://github.com/konrads/fake-aws.git
 - export PATH=$PATH:$PWD/fake-aws/bin
 - data-gen dev resources/aws-template resources/aws-stage
@@ -12,5 +11,4 @@ before_script:
 
 language: scala
 scala:
-- 2.11.6
 - 2.11.7
