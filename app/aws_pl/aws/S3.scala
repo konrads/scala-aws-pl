@@ -6,7 +6,6 @@ import com.amazonaws.regions.Region
 import com.amazonaws.services.s3.S3ClientOptions
 import com.amazonaws.services.s3.model.{AmazonS3Exception, ListObjectsRequest}
 import com.github.dwhjames.awswrap.s3.AmazonS3ScalaClient
-import play.Logger
 import play.api.libs.json.{JsValue, Json}
 
 import scala.collection.JavaConverters._
@@ -15,11 +14,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class S3(awsRegion: Region, endpoint: Option[String])(implicit ec: ExecutionContext) {
   val client = {
     val c = new AmazonS3ScalaClient()
-    Logger.info(s"Running s3 with region: $awsRegion")
     c.client.setRegion(awsRegion)
     c.client.setS3ClientOptions(new S3ClientOptions().withPathStyleAccess(true))
     endpoint.foreach { opt =>
-      Logger.info(s"Running s3 with endpoint: $opt")
       c.client.setEndpoint(opt)
     }
     c

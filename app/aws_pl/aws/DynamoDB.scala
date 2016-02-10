@@ -5,7 +5,6 @@ import com.amazonaws.regions.Region
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClient
 import com.amazonaws.services.dynamodbv2.model.{AttributeValue, QueryRequest}
 import com.github.dwhjames.awswrap.dynamodb._
-import play.Logger
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
@@ -16,10 +15,8 @@ class DynamoDB(awsRegion: Region, endpoint: Option[String], userTable: String, s
               (implicit ec: ExecutionContext) {
   private val asyncClient: AmazonDynamoDBAsyncClient = {
     val c = new AmazonDynamoDBAsyncClient()
-    Logger.info("Running dynamoDB with region: " + awsRegion)
     c.setRegion(awsRegion)
     endpoint.foreach { opt =>
-      Logger.info("Running dynamoDB with endpoint: " + opt)
       c.setEndpoint(opt)
     }
     c
