@@ -4,8 +4,9 @@ services:
 
 before_script:
 - git clone https://github.com/konrads/fake-aws.git
-- fake-aws/bin/data-gen dev resources/aws-template resources/aws-stage
-- fake-aws/bin/fake-aws refresh containers resources/aws-stage
+- export PATH=$PATH:$PWD/fake-aws/bin
+- data-gen dev resources/aws-template resources/aws-stage
+- fake-aws refresh containers resources/aws-stage
 
 language: scala
 scala:

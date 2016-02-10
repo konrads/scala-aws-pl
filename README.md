@@ -1,6 +1,8 @@
 AWS playground in Scala
 =======================
 
+Build status (master): [![Build Status](https://travis-ci.org/konrads/scala-aws-pl.svg?branch=master)](https://travis-ci.org/konrads/scala-aws-pl)
+
 A sample web service based on [Play](https://github.com/playframework/playframework) and deployed on [fake-aws](https://github.com/konrads/fake-aws).
 Exercises `fake-aws`'s `dynamodb`, `s3` and `redis`.
 
