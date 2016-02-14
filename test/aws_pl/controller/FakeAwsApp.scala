@@ -3,8 +3,9 @@ package aws_pl.controller
 import java.util.Base64
 
 import aws_pl.play.Components
+import com.fasterxml.jackson.core.JsonParseException
 import play.api.ApplicationLoader.Context
-import play.api.libs.json.Json
+import play.api.libs.json.{JsArray, JsObject, JsValue, Json}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, WithApplicationLoader}
 import play.api.{ApplicationLoader, Configuration, Logger}
@@ -17,17 +18,14 @@ class FakeAwsApp(reconfig: Configuration => Configuration = x => x) extends With
     val statusCode = status(respF)
     if (statusCode != OK)
       None
-    else {
+    else
       for {
         cntTypeO <- contentType(respF)
         token <- {
           val content = contentAsString(respF)
           (Json.parse(content) \ "Authentication-Token").asOpt[String]
         }
-      } yield {
-        token
-      }
-    }
+      } yield token
   }
 
   def get(url: String, user: String, pwd: String) = {
@@ -44,8 +42,22 @@ class FakeAwsApp(reconfig: Configuration => Configuration = x => x) extends With
     status(respF)
   }
 
-  def sanitize(str: String) =
-    str.replaceAll("(\"timestamp\":)[\\d]*", "$1xxx")
+  def sanitize(str: String): String = {
+    def sortJs(js: JsValue): JsValue =
+      js match {
+        case arr: JsArray  => JsArray(arr.value.map(sortJs).sortBy(_.toString))
+        case obj: JsObject => JsObject(obj.value.toSeq.map{ case (k,v) => k -> sortJs(v) }.sortBy{ case (k,_) => k })
+        case other => other
+      }
+
+    val str2 = str.replaceAll("(\"timestamp\":)[\\d]*", "$1xxx")
+    try {
+      val js = Json.parse(str2)
+      sortJs(js).toString
+    } catch {
+      case _:JsonParseException => str2
+    }
+  }
 }
 
 // wrapper class to expose components
