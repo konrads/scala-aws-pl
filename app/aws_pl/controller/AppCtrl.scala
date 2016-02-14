@@ -5,7 +5,7 @@ import aws_pl.repo.{FxRepo, PortfolioRepo, SpotRepo, UserRepo}
 import aws_pl.util.AuthenticatedAction
 import aws_pl.util.Cats._
 import cats.data.OptionT
-import cats.std.all._
+import cats.implicits._
 import org.joda.time.DateTime
 import play.api.libs.json.{JsArray, JsObject, Json}
 import play.api.mvc.BodyParsers

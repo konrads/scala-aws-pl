@@ -6,7 +6,6 @@ import play.api.test.Helpers._
 class AppCtrlSpec extends Specification {
 
   "AppCtrl" should {
-
     "authenticate known user" in new FakeAwsApp {
       getToken("user123", "pwd123") must beSome.which(_.length > 0)
     }

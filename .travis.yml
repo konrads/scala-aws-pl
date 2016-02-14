@@ -13,5 +13,6 @@ language: scala
 scala:
 - 2.11.7
 
+# presence of following is required by AWS libraries, but they're not actually used
 env:
 - AWS_ACCESS_KEY_ID=bogus_access_key AWS_SECRET_KEY=bogus_access_key
