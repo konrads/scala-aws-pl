@@ -18,13 +18,13 @@ The purposes of this project:
   * parameter validation performed by `Play`
   * logging
 * to create pluggable components (✓ = implemented, ✗ = not yet)
-  * authentication - via [AuthenticatedAction.scala](aws_pl/util/AuthenticatedAction.scala) ✓
+  * authentication - via [AuthenticatedAction.scala](app/aws_pl/util/AuthenticatedAction.scala) ✓
   * authorization ✗
-  * error handling - via [AuthenticatedAction.scala](aws_pl/util/AuthenticatedAction.scala) ✓
-  * parameter validation  - via [ParamValidator.scala](aws_pl/validate/ParamValidator.scala) ✗
-  * telemetry/metrics - via [AuthenticatedAction.scala](aws_pl/metrics/MetricsFilter.scala) (applied to all reqs) ✗
-  * rate limiting - via [RateLimiter.scala](aws_pl/ratelimit/RateLimiter.scala) (applied to authorized reqs) ✗
-  * pagination - via [AuthenticatedAction.scala](aws_pl/util/PaginationAction.scala) (applied to selected reqs) ✗
+  * error handling - via [AuthenticatedAction.scala](app/aws_pl/util/AuthenticatedAction.scala) ✓
+  * parameter validation  - via [ParamValidator.scala](app/aws_pl/validate/ParamValidator.scala) ✗
+  * telemetry/metrics - via [AuthenticatedAction.scala](app/aws_pl/metrics/MetricsFilter.scala) (applied to all reqs) ✗
+  * rate limiting - via [RateLimiter.scala](app/aws_pl/ratelimit/RateLimiter.scala) (applied to authorized reqs) ✗
+  * pagination - via [AuthenticatedAction.scala](app/aws_pl/util/PaginationAction.scala) (applied to selected reqs) ✗
 
 A sample web service based on [Play](https://github.com/playframework/playframework) and deployed on [fake-aws](https://github.com/konrads/fake-aws).
 Exercises `fake-aws`'s `dynamodb`, `s3` and `redis`.
