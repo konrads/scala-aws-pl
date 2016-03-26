@@ -7,8 +7,8 @@ import aws_pl.util.Cats._
 import cats.data.OptionT
 import cats.implicits._
 import org.joda.time.DateTime
-import play.api.libs.json.{JsArray, JsObject, Json}
-import play.api.mvc.BodyParsers
+import play.api.libs.json.{Json, JsArray}
+import play.api.mvc.{Result, BodyParsers}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -16,21 +16,20 @@ class AppCtrl(userRepo: UserRepo, portfolioRepo: PortfolioRepo, spotRepo: SpotRe
               auth: AuthenticatedAction, userTypes: Map[String, String])
              (implicit ec: ExecutionContext) extends ResultMapper {
 
-  def getUser = auth.async { req =>
-    val userOptt = OptionT(userRepo.getUser(req.user.uid)).map { user =>
-      val withFixedType = user.copy(`type` = userTypes(user.`type`))
-      withFixedType.asPublic
+  def getUser = auth.asyncOptt { req =>
+    OptionT(userRepo.getUser(req.user.uid)).map { user =>
+      val publicUser = user.copy(`type` = userTypes(user.`type`)).asPublic
+      Ok(Json.toJson(publicUser))
     }
-    userOptt.value.map(mapResult(_))
   }
 
-  def getMySpots(targetCurrency: String) = auth.async { req =>
+  def getMySpots(targetCurrency: String) = auth.asyncXort { req =>
     def canBeConverted(spots: Seq[Spot], availableCurrencies: Set[String]) = {
       val needConversion = (for { s <- spots } yield { s.currency }).toSet - targetCurrency
       needConversion.subsetOf(availableCurrencies)
     }
 
-    val res = for {
+    for {
       tickers <- f2Xort(portfolioRepo.getPortfolio(req.user.uid))
       spots   <- fs2Xort(spotRepo.getLatestSpots(tickers), NoData)
       fxMap   <- fm2Xort(fxRepo.getFxMap(targetCurrency), NoDependency)
@@ -52,13 +51,12 @@ class AppCtrl(userRepo: UserRepo, portfolioRepo: PortfolioRepo, spotRepo: SpotRe
           )
       }
       val asJs = for { spot <- fxedSpots } yield { Json.toJson(spot) }
-      JsArray(asJs)
+      Ok(JsArray(asJs))
     }
-    res.value.map(mapResult(_))
   }
 
-  def getSpots(tickers: Option[String]) = auth.async { req =>
-    val res = for {
+  def getSpots(tickers: Option[String]) = auth.asyncXort { req =>
+    for {
       definedOrMyTickers <- {
         if (tickers.nonEmpty)
           right2Xort(tickers.get.split(",").toSeq)
@@ -68,23 +66,26 @@ class AppCtrl(userRepo: UserRepo, portfolioRepo: PortfolioRepo, spotRepo: SpotRe
       spots <- fs2Xort(spotRepo.getLatestSpots(definedOrMyTickers), NoData)
     } yield {
       val asJs = for {spot <- spots} yield { Json.toJson(spot) }
-      JsArray(asJs)
+      Ok(JsArray(asJs))
     }
-    res.value.map(mapResult(_))
   }
 
-  def getFx(currency: String) = auth.async { req =>
-    fm2Xort(fxRepo.getFxMap(currency), NoData).value.map(mapResult(_))
+  def getFx(currency: String) = auth.asyncXort { req =>
+    fm2Xort(fxRepo.getFxMap(currency), NoData).map { fx =>
+      Ok(Json.toJson(fx))
+    }
   }
 
-  def putSpot = auth.async(BodyParsers.parse.json) { req =>
+  def putSpot = auth.asyncOptt(BodyParsers.parse.json) { req =>
     // FIXME: json schema validation?
-    val spotO = req.body.validate[SpotPublic].asOpt
-    val now = DateTime.now.getMillis/1000
-    val res = if (spotO.nonEmpty)
-      spotRepo.saveSpot(spotO.get.toPrivate(now))map(o => Some(JsObject(Seq())))
-    else
-      Future.successful(None)
-    res.map(mapResult(_))
+    val res: Future[Option[Result]] = req.body.validate[SpotPublic].asOpt match {
+      case Some(spot) =>
+        val now = DateTime.now.getMillis/1000
+        val asPrivate = spot.toPrivate(now)
+        spotRepo.saveSpot(asPrivate).map(_ => Some(Ok(JsArray())))
+      case None =>
+        Future.successful(None)
+    }
+    OptionT(res)
   }
 }
