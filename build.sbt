@@ -11,6 +11,8 @@ routesGenerator := InjectedRoutesGenerator
 resolvers += Resolver.bintrayRepo("dwhjames", "maven")
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 
+javaOptions in Test += "-Dconfig.file=conf/dev.conf"
+
 scalacOptions ++= Seq("-deprecation", "-feature")
 
 libraryDependencies ++= Seq(
@@ -27,3 +29,12 @@ libraryDependencies ++= Seq(
 )
 
 fork := true
+
+test in assembly := {}
+mergeStrategy in assembly <<= (mergeStrategy in assembly) { mergeStrategy => {
+  case entry => {
+    val strategy = mergeStrategy(entry)
+    if (strategy == MergeStrategy.deduplicate) MergeStrategy.first
+    else strategy
+  }
+}}

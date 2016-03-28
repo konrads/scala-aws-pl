@@ -73,3 +73,13 @@ To test
 # ensure fake-aws is setup
 > sbt test
 ```
+
+To run in prod
+--------------
+```
+> sbt assembly
+# config file's "includes" pull in app.conf irrespective of config file location, eg. 
+> cp conf/prod.conf ./prod.conf
+# ensure /var/scala-aws-pl/config/private.conf contains valid value for aws.redis.host
+> java -Dconfig.file=./prod.conf -jar target/scala-2.11/scala-aws-pl-assembly-1.0-SNAPSHOT.jar
+```

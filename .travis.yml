@@ -7,7 +7,7 @@ before_script:
 - export PATH=$PATH:$PWD/fake-aws/bin
 - data-gen dev resources/aws-template resources/aws-stage
 - fake-aws refresh containers resources/aws-stage
-- cp conf/private.localhost.conf conf/private.conf
+- cp conf/private.conf.travis conf/private.conf
 
 language: scala
 scala:
